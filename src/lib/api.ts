@@ -1,0 +1,12 @@
+export * from "../api/client";
+export { authApi } from "../api/auth";
+export { projectsApi } from "../api/projects";
+export { tasksApi } from "../api/tasks";
+export { financeApi } from "../api/finance";
+export { mpesaApi } from "../api/mpesa";
+export { inventoryApi, scrapersApi } from "../api/inventory";
+export { hrApi, techniciansApi } from "../api/hr";
+export { crmApi } from "../api/crm";
+export { dashboardApi, workflowApi, usersApi, permissionsApi } from "../api/system";
+export { auditApi } from "../api/audit";
+export { rbacApi, managementApi } from "../api/rbac";
