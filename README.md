@@ -6,7 +6,7 @@ A modern, high-performance Enterprise Resource Planning (ERP) system designed fo
 
 ### Prerequisites
 - Node.js & npm (Latest LTS recommended)
-- Access to the ERP Backend API (Default: `https://erp.gygaview.co.ke`)
+- Access to the ERP Backend API (Default: `http://erp.gygaview.co.ke`)
 
 ### Installation
 
@@ -16,7 +16,13 @@ A modern, high-performance Enterprise Resource Planning (ERP) system designed fo
    cd remix-of-remix-of-isp-operations-hub-main
    ```
 
-2. **Install dependencies**
+2. **Setup environment variables**
+   Copy the example file and update the backend URL if necessary:
+   ```bash
+   cp .env.example .env
+   ```
+
+3. **Install dependencies**
    ```bash
    npm install
    ```

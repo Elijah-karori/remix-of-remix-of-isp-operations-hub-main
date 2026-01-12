@@ -25,7 +25,15 @@ The `apiFetch` function is a robust wrapper over the native `fetch` API:
 - **Content-Type Negotiation**: Automatically sets `application/json` unless `FormData` is passed (handling multipart uploads correctly).
 - **Error Handling**: Standardizes backend error formats (`detail` field) into JavaScript `Error` objects.
 
-### 2.2 Domain Modules
+- **Error Handling**: Standardizes backend error formats (`detail` field) into JavaScript `Error` objects.
+
+### 2.2 Environment Configuration
+The API base URL is managed via environment variables to allow for different backends in development and production.
+- **Variable**: `VITE_API_BASE_URL`
+- **File**: `.env` (not committed) and `.env.example` (template).
+- **Usage**: `import.meta.env.VITE_API_BASE_URL`.
+
+### 2.3 Domain Modules
 - **`authApi`**: Implements three distinct login/register flows (Password, Magic Link, OTP).
 - **`mpesaApi`**: A complete implementation of the M-Pesa Daraja 2.0 API including STK Push and B2C/B2B flows.
 - **`financeApi`**: Handles complex budgeting logic, invoice generation, and bank integrations (NCBA).
@@ -70,7 +78,6 @@ Access tokens are stored in `localStorage`.
 ### 5.2 Form Handling
 Use `react-hook-form` integrated with `zod` for validation.
 - Schema definitions should reside at the top of the component or in a separate `types/` file for reuse.
-
 ---
 
 ## 6. Testing & Quality
