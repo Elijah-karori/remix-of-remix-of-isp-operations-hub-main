@@ -18,9 +18,10 @@ import {
   ChevronLeft,
   ChevronRight,
   Wifi,
-  Menu,
+  LogOut,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface NavItem {
   label: string;
@@ -51,10 +52,20 @@ const systemNavItems: NavItem[] = [
 export function Sidebar() {
   const [collapsed, setCollapsed] = useState(false);
   const location = useLocation();
+  const { user, logout } = useAuth();
 
   const isActive = (href: string) => {
     if (href === "/") return location.pathname === "/";
     return location.pathname.startsWith(href);
+  };
+
+  const getInitials = (name: string) => {
+    return name
+      .split(" ")
+      .map((n) => n[0])
+      .join("")
+      .toUpperCase()
+      .substring(0, 2);
   };
 
   return (
@@ -158,19 +169,45 @@ export function Sidebar() {
       </nav>
 
       {/* User Profile */}
-      {!collapsed && (
-        <div className="p-4 border-t border-sidebar-border">
-          <div className="flex items-center gap-3 p-3 rounded-lg bg-sidebar-accent/50">
-            <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
-              <span className="text-sm font-semibold text-primary">JD</span>
+      <div className="p-4 border-t border-sidebar-border">
+        {user ? (
+          <div className={cn(
+            "flex items-center gap-3 p-3 rounded-lg bg-sidebar-accent/50",
+            collapsed && "justify-center px-2"
+          )}>
+            <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
+              <span className="text-sm font-semibold text-primary">
+                {getInitials(user.full_name)}
+              </span>
             </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-foreground truncate">John Doe</p>
-              <p className="text-xs text-muted-foreground truncate">Admin</p>
-            </div>
+            {!collapsed && (
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium text-foreground truncate">
+                  {user.full_name}
+                </p>
+                <p className="text-xs text-muted-foreground truncate">
+                  {user.email}
+                </p>
+              </div>
+            )}
+            {!collapsed && (
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={logout}
+                className="text-muted-foreground hover:text-destructive transition-colors"
+                title="Logout"
+              >
+                <LogOut className="w-4 h-4" />
+              </Button>
+            )}
           </div>
-        </div>
-      )}
+        ) : (
+          !collapsed && (
+            <div className="p-3 rounded-lg bg-sidebar-accent/50 animate-pulse h-16 w-full" />
+          )
+        )}
+      </div>
     </aside>
   );
 }

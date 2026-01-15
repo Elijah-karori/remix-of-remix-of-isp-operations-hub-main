@@ -8,6 +8,7 @@ import { TeamPerformance } from "@/components/dashboard/TeamPerformance";
 import { InventoryAlert } from "@/components/dashboard/InventoryAlert";
 import { LoadingSkeleton } from "@/components/ui/loading-skeleton";
 import { ErrorState } from "@/components/ui/error-state";
+import { useAuth } from "@/contexts/AuthContext";
 import {
   useProjectsOverview,
   useTaskAllocation,
@@ -21,6 +22,7 @@ import {
 } from "lucide-react";
 
 export default function Index() {
+  const { user } = useAuth();
   const { data: projectsOverview, isLoading: loadingProjects, error: projectsError, refetch: refetchProjects } = useProjectsOverview();
   const { data: taskAllocation, isLoading: loadingTasks, error: tasksError, refetch: refetchTasks } = useTaskAllocation();
   const { data: budgetTracking, isLoading: loadingBudget, error: budgetError, refetch: refetchBudget } = useBudgetTracking();
@@ -40,10 +42,12 @@ export default function Index() {
   const getActiveProjects = () => projectsOverview?.by_status?.in_progress || 0;
   const getPendingTasks = () => (taskAllocation?.by_status?.pending || 0) + (taskAllocation?.by_status?.in_progress || 0);
   const getMonthlyRevenue = () => budgetTracking?.total_budget || 0;
-  const getTotalTechnicians = () => projectsOverview?.total_projects || 0;
 
   return (
-    <DashboardLayout title="Dashboard" subtitle="Welcome back, John">
+    <DashboardLayout
+      title="Dashboard"
+      subtitle={`Welcome back, ${user?.full_name?.split(" ")[0] || "User"}`}
+    >
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         {isStatsLoading ? (
@@ -106,7 +110,7 @@ export default function Index() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Left Column - Projects & Tasks */}
         <div className="lg:col-span-2 space-y-6">
-          <RecentProjects />
+          <RecentProjects projects={projectsOverview?.recent_projects} isLoading={loadingProjects} />
           <TasksList />
         </div>
 

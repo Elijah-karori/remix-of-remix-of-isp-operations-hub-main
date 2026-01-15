@@ -6,56 +6,18 @@ import { cn } from "@/lib/utils";
 interface Project {
   id: number;
   name: string;
-  customer: string;
-  type: "fiber" | "wireless" | "ppoe" | "hotspot" | "hybrid";
-  status: "planning" | "in_progress" | "completed" | "on_hold";
+  customer_name?: string;
+  infrastructure_type?: string;
+  status: string;
   progress: number;
-  team: number;
-  deadline: string;
+  team_size?: number;
+  deadline?: string;
 }
 
-const projects: Project[] = [
-  {
-    id: 1,
-    name: "Kilimani Fiber Installation",
-    customer: "ABC Company Ltd",
-    type: "fiber",
-    status: "in_progress",
-    progress: 65,
-    team: 4,
-    deadline: "Jan 25, 2026",
-  },
-  {
-    id: 2,
-    name: "Westlands Office Network",
-    customer: "Smith Enterprises",
-    type: "wireless",
-    status: "planning",
-    progress: 15,
-    team: 2,
-    deadline: "Feb 10, 2026",
-  },
-  {
-    id: 3,
-    name: "CBD Hotspot Deployment",
-    customer: "City Mall",
-    type: "hotspot",
-    status: "in_progress",
-    progress: 80,
-    team: 3,
-    deadline: "Jan 18, 2026",
-  },
-  {
-    id: 4,
-    name: "Karen Estate PPOE Setup",
-    customer: "Residential Complex",
-    type: "ppoe",
-    status: "completed",
-    progress: 100,
-    team: 5,
-    deadline: "Jan 8, 2026",
-  },
-];
+interface RecentProjectsProps {
+  projects?: Project[];
+  isLoading?: boolean;
+}
 
 const statusStyles = {
   planning: "bg-warning/10 text-warning border-warning/20",
@@ -72,7 +34,20 @@ const typeStyles = {
   hybrid: "bg-chart-5/10 text-chart-5",
 };
 
-export function RecentProjects() {
+export function RecentProjects({ projects = [], isLoading }: RecentProjectsProps) {
+  if (isLoading) {
+    return (
+      <div className="glass rounded-xl p-6 animate-pulse">
+        <div className="h-6 w-48 bg-secondary rounded mb-6" />
+        <div className="space-y-4">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="h-24 w-full bg-secondary rounded" />
+          ))}
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="glass rounded-xl p-6 animate-slide-up">
       <div className="flex items-center justify-between mb-6">
@@ -91,50 +66,60 @@ export function RecentProjects() {
       </div>
 
       <div className="space-y-4">
-        {projects.map((project, index) => (
-          <div
-            key={project.id}
-            className="p-4 rounded-lg bg-secondary/50 border border-border/50 hover:border-primary/30 transition-all duration-200"
-            style={{ animationDelay: `${index * 100}ms` }}
-          >
-            <div className="flex items-start justify-between mb-3">
-              <div className="flex-1">
-                <div className="flex items-center gap-2 mb-1">
-                  <h3 className="font-medium text-foreground">{project.name}</h3>
-                  <Badge className={cn("text-xs", typeStyles[project.type])}>
-                    {project.type.toUpperCase()}
-                  </Badge>
-                </div>
-                <p className="text-sm text-muted-foreground">{project.customer}</p>
-              </div>
-              <Badge variant="outline" className={cn("text-xs", statusStyles[project.status])}>
-                {project.status.replace("_", " ")}
-              </Badge>
-            </div>
-
-            <div className="flex items-center gap-4 text-sm text-muted-foreground">
-              <div className="flex items-center gap-1">
-                <Users className="w-4 h-4" />
-                <span>{project.team}</span>
-              </div>
-              <div className="flex items-center gap-1">
-                <Clock className="w-4 h-4" />
-                <span>{project.deadline}</span>
-              </div>
-              <div className="flex-1">
-                <div className="flex items-center gap-2">
-                  <div className="flex-1 h-2 rounded-full bg-secondary overflow-hidden">
-                    <div
-                      className="h-full rounded-full gradient-primary transition-all duration-500"
-                      style={{ width: `${project.progress}%` }}
-                    />
-                  </div>
-                  <span className="text-xs font-medium">{project.progress}%</span>
-                </div>
-              </div>
-            </div>
+        {projects.length === 0 ? (
+          <div className="p-8 text-center border-2 border-dashed border-border rounded-xl">
+            <p className="text-muted-foreground">No active projects found</p>
           </div>
-        ))}
+        ) : (
+          projects.map((project, index) => (
+            <div
+              key={project.id}
+              className="p-4 rounded-lg bg-secondary/50 border border-border/50 hover:border-primary/30 transition-all duration-200"
+              style={{ animationDelay: `${index * 100}ms` }}
+            >
+              <div className="flex items-start justify-between mb-3">
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 mb-1">
+                    <h3 className="font-medium text-foreground">{project.name}</h3>
+                    {project.infrastructure_type && (
+                      <Badge className={cn("text-xs", typeStyles[project.infrastructure_type as keyof typeof typeStyles])}>
+                        {project.infrastructure_type.toUpperCase()}
+                      </Badge>
+                    )}
+                  </div>
+                  <p className="text-sm text-muted-foreground">{project.customer_name}</p>
+                </div>
+                <Badge variant="outline" className={cn("text-xs", statusStyles[project.status as keyof typeof statusStyles])}>
+                  {(project.status || "planning").replace("_", " ")}
+                </Badge>
+              </div>
+
+              <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                <div className="flex items-center gap-1">
+                  <Users className="w-4 h-4" />
+                  <span>{project.team_size || 0}</span>
+                </div>
+                {project.deadline && (
+                  <div className="flex items-center gap-1">
+                    <Clock className="w-4 h-4" />
+                    <span>{new Date(project.deadline).toLocaleDateString()}</span>
+                  </div>
+                )}
+                <div className="flex-1">
+                  <div className="flex items-center gap-2">
+                    <div className="flex-1 h-2 rounded-full bg-secondary overflow-hidden">
+                      <div
+                        className="h-full rounded-full gradient-primary transition-all duration-500"
+                        style={{ width: `${project.progress || 0}%` }}
+                      />
+                    </div>
+                    <span className="text-xs font-medium">{project.progress || 0}%</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))
+        )}
       </div>
     </div>
   );

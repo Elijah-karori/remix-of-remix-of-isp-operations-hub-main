@@ -1,5 +1,6 @@
-import { Wallet, ArrowUpRight, ArrowDownRight, CreditCard, Receipt } from "lucide-react";
+import { Wallet, ArrowUpRight, ArrowDownRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useFinanceSnapshot } from "@/hooks/use-dashboard";
 import {
   AreaChart,
   Area,
@@ -10,24 +11,31 @@ import {
   ResponsiveContainer,
 } from "recharts";
 
-const revenueData = [
-  { month: "Jul", revenue: 450000, expenses: 320000 },
-  { month: "Aug", revenue: 520000, expenses: 380000 },
-  { month: "Sep", revenue: 480000, expenses: 350000 },
-  { month: "Oct", revenue: 610000, expenses: 420000 },
-  { month: "Nov", revenue: 580000, expenses: 390000 },
-  { month: "Dec", revenue: 720000, expenses: 450000 },
-  { month: "Jan", revenue: 680000, expenses: 410000 },
-];
-
-const transactions = [
-  { id: 1, type: "income", description: "M-Pesa Payment - ABC Ltd", amount: 150000, time: "2h ago" },
-  { id: 2, type: "expense", description: "Fiber Cable Purchase", amount: -45000, time: "4h ago" },
-  { id: 3, type: "income", description: "Project Milestone - Westlands", amount: 200000, time: "6h ago" },
-  { id: 4, type: "expense", description: "Technician Payroll", amount: -125000, time: "1d ago" },
-];
-
 export function FinanceOverview() {
+  const { data: snapshot, isLoading, error } = useFinanceSnapshot();
+
+  if (isLoading) {
+    return (
+      <div className="glass rounded-xl p-6 animate-pulse">
+        <div className="h-6 w-40 bg-secondary rounded mb-6" />
+        <div className="h-48 w-full bg-secondary rounded mb-6" />
+        <div className="space-y-3">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="h-12 w-full bg-secondary rounded" />
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  // Use real transactions if available, otherwise empty
+  const transactions = snapshot?.recent_transactions || [];
+
+  // Mock trend data for chart as it's not fully provided by snapshot API yet
+  const revenueData = [
+    { month: "Jan", revenue: snapshot?.monthly_revenue || 0, expenses: snapshot?.monthly_expenses || 0 },
+  ];
+
   return (
     <div className="glass rounded-xl p-6 animate-slide-up" style={{ animationDelay: "200ms" }}>
       <div className="flex items-center justify-between mb-6">
@@ -92,35 +100,37 @@ export function FinanceOverview() {
       {/* Recent Transactions */}
       <div className="space-y-3">
         <h3 className="text-sm font-medium text-muted-foreground">Recent Transactions</h3>
-        {transactions.map((tx) => (
-          <div
-            key={tx.id}
-            className="flex items-center gap-3 p-3 rounded-lg bg-secondary/30 hover:bg-secondary/50 transition-colors"
-          >
+        {transactions.length === 0 ? (
+          <p className="text-xs text-center text-muted-foreground py-4">No recent transactions</p>
+        ) : (
+          transactions.map((tx) => (
             <div
-              className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                tx.type === "income" ? "bg-success/20" : "bg-destructive/20"
-              }`}
+              key={tx.id}
+              className="flex items-center gap-3 p-3 rounded-lg bg-secondary/30 hover:bg-secondary/50 transition-colors"
             >
-              {tx.type === "income" ? (
-                <ArrowUpRight className="w-5 h-5 text-success" />
-              ) : (
-                <ArrowDownRight className="w-5 h-5 text-destructive" />
-              )}
+              <div
+                className={`w-10 h-10 rounded-full flex items-center justify-center ${tx.type === "income" ? "bg-success/20" : "bg-destructive/20"
+                  }`}
+              >
+                {tx.type === "income" ? (
+                  <ArrowUpRight className="w-5 h-5 text-success" />
+                ) : (
+                  <ArrowDownRight className="w-5 h-5 text-destructive" />
+                )}
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium text-foreground truncate">{tx.description}</p>
+                <p className="text-xs text-muted-foreground">{new Date(tx.date).toLocaleDateString()}</p>
+              </div>
+              <span
+                className={`text-sm font-semibold ${tx.type === "income" ? "text-success" : "text-destructive"
+                  }`}
+              >
+                {tx.type === "income" ? "+" : "-"}KES {Math.abs(tx.amount).toLocaleString()}
+              </span>
             </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-foreground truncate">{tx.description}</p>
-              <p className="text-xs text-muted-foreground">{tx.time}</p>
-            </div>
-            <span
-              className={`text-sm font-semibold ${
-                tx.amount > 0 ? "text-success" : "text-destructive"
-              }`}
-            >
-              {tx.amount > 0 ? "+" : ""}KES {Math.abs(tx.amount).toLocaleString()}
-            </span>
-          </div>
-        ))}
+          ))
+        )}
       </div>
     </div>
   );

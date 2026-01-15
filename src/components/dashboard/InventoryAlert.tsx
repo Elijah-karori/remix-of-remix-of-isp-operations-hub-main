@@ -2,22 +2,16 @@ import { Package, AlertTriangle, ShoppingCart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import { useLowStock } from "@/hooks/use-dashboard";
 
 interface InventoryItem {
   id: number;
   name: string;
   sku: string;
-  currentStock: number;
-  reorderLevel: number;
+  quantity_in_stock: number;
+  reorder_level: number;
   status: "critical" | "low" | "warning";
 }
-
-const lowStockItems: InventoryItem[] = [
-  { id: 1, name: "Cat6 Ethernet Cable (100m)", sku: "ETH-CAT6-100M", currentStock: 15, reorderLevel: 200, status: "critical" },
-  { id: 2, name: "Fiber Splice Box", sku: "FSB-12PORT", currentStock: 8, reorderLevel: 50, status: "critical" },
-  { id: 3, name: "RJ45 Connectors (100pk)", sku: "RJ45-CAT6-100", currentStock: 45, reorderLevel: 100, status: "low" },
-  { id: 4, name: "Wireless Access Point", sku: "WAP-AC1200", currentStock: 12, reorderLevel: 25, status: "warning" },
-];
 
 const statusStyles = {
   critical: "bg-destructive/10 text-destructive border-destructive/20",
@@ -26,6 +20,23 @@ const statusStyles = {
 };
 
 export function InventoryAlert() {
+  const { data: rawItems, isLoading, error } = useLowStock();
+
+  const lowStockItems: InventoryItem[] = (rawItems as any[]) || [];
+
+  if (isLoading) {
+    return (
+      <div className="glass rounded-xl p-6 animate-pulse">
+        <div className="h-6 w-40 bg-secondary rounded mb-6" />
+        <div className="space-y-3">
+          {[1, 2].map((i) => (
+            <div key={i} className="h-16 w-full bg-secondary rounded" />
+          ))}
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="glass rounded-xl p-6 animate-slide-up" style={{ animationDelay: "500ms" }}>
       <div className="flex items-center justify-between mb-6">
@@ -44,40 +55,46 @@ export function InventoryAlert() {
       </div>
 
       <div className="space-y-3">
-        {lowStockItems.map((item) => (
-          <div
-            key={item.id}
-            className="flex items-center gap-4 p-3 rounded-lg bg-secondary/30 hover:bg-secondary/50 transition-colors"
-          >
-            <div className="w-10 h-10 rounded-lg bg-secondary flex items-center justify-center flex-shrink-0">
-              <AlertTriangle
-                className={cn(
-                  "w-5 h-5",
-                  item.status === "critical"
-                    ? "text-destructive"
-                    : item.status === "low"
-                    ? "text-warning"
-                    : "text-primary"
-                )}
-              />
-            </div>
-
-            <div className="flex-1 min-w-0">
-              <p className="font-medium text-foreground truncate">{item.name}</p>
-              <p className="text-xs text-muted-foreground">{item.sku}</p>
-            </div>
-
-            <div className="text-right flex-shrink-0">
-              <div className="flex items-center gap-2">
-                <span className="text-sm font-medium text-foreground">{item.currentStock}</span>
-                <span className="text-xs text-muted-foreground">/ {item.reorderLevel}</span>
-              </div>
-              <Badge className={cn("text-xs mt-1", statusStyles[item.status])}>
-                {item.status}
-              </Badge>
-            </div>
+        {lowStockItems.length === 0 ? (
+          <div className="text-center py-6 border-2 border-dashed border-border rounded-xl">
+            <p className="text-muted-foreground">All items fully stocked</p>
           </div>
-        ))}
+        ) : (
+          lowStockItems.map((item) => (
+            <div
+              key={item.id}
+              className="flex items-center gap-4 p-3 rounded-lg bg-secondary/30 hover:bg-secondary/50 transition-colors"
+            >
+              <div className="w-10 h-10 rounded-lg bg-secondary flex items-center justify-center flex-shrink-0">
+                <AlertTriangle
+                  className={cn(
+                    "w-5 h-5",
+                    item.status === "critical"
+                      ? "text-destructive"
+                      : item.status === "low"
+                        ? "text-warning"
+                        : "text-primary"
+                  )}
+                />
+              </div>
+
+              <div className="flex-1 min-w-0">
+                <p className="font-medium text-foreground truncate">{item.name}</p>
+                <p className="text-xs text-muted-foreground">{item.sku}</p>
+              </div>
+
+              <div className="text-right flex-shrink-0">
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-medium text-foreground">{item.quantity_in_stock}</span>
+                  <span className="text-xs text-muted-foreground">/ {item.reorder_level}</span>
+                </div>
+                <Badge className={cn("text-xs mt-1", statusStyles[item.status])}>
+                  {item.status}
+                </Badge>
+              </div>
+            </div>
+          ))
+        )}
       </div>
 
       <Button className="w-full mt-4 gradient-primary text-primary-foreground">
