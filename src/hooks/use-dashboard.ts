@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { dashboardApi, tasksApi, inventoryApi, techniciansApi, financeApi } from "@/lib/api";
+import { dashboardsApi, tasksApi, inventoryApi, techniciansApi, financeApi } from "@/lib/api";
 
 export interface ProjectsOverview {
   total_projects: number;
@@ -85,7 +85,7 @@ export interface FinanceSnapshot {
 export function useProjectsOverview() {
   return useQuery<ProjectsOverview>({
     queryKey: ["dashboards", "projects-overview"],
-    queryFn: () => dashboardApi.projectsOverview() as Promise<ProjectsOverview>,
+    queryFn: () => dashboardsApi.getProjectsOverview() as Promise<ProjectsOverview>,
     staleTime: 60000, // 1 minute
   });
 }
@@ -93,7 +93,7 @@ export function useProjectsOverview() {
 export function useTaskAllocation() {
   return useQuery<TaskAllocation>({
     queryKey: ["dashboards", "task-allocation"],
-    queryFn: () => dashboardApi.taskAllocation() as Promise<TaskAllocation>,
+    queryFn: () => dashboardsApi.getTaskAllocation() as Promise<TaskAllocation>,
     staleTime: 60000,
   });
 }
@@ -101,7 +101,7 @@ export function useTaskAllocation() {
 export function useBudgetTracking() {
   return useQuery<BudgetTracking>({
     queryKey: ["dashboards", "budget-tracking"],
-    queryFn: () => dashboardApi.budgetTracking() as Promise<BudgetTracking>,
+    queryFn: () => dashboardsApi.getBudgetTracking() as Promise<BudgetTracking>,
     staleTime: 60000,
   });
 }
@@ -109,7 +109,7 @@ export function useBudgetTracking() {
 export function useTeamWorkload() {
   return useQuery<TeamWorkload>({
     queryKey: ["dashboards", "team-workload"],
-    queryFn: () => dashboardApi.teamWorkload() as Promise<TeamWorkload>,
+    queryFn: () => dashboardsApi.getTeamWorkload() as Promise<TeamWorkload>,
     staleTime: 60000,
   });
 }
@@ -117,7 +117,7 @@ export function useTeamWorkload() {
 export function useLowStock(thresholdMultiplier = 1.5) {
   return useQuery<LowStockItem[]>({
     queryKey: ["inventory", "low-stock", thresholdMultiplier],
-    queryFn: () => inventoryApi.lowStock(thresholdMultiplier) as Promise<LowStockItem[]>,
+    queryFn: () => inventoryApi.getLowStock(thresholdMultiplier) as Promise<LowStockItem[]>,
     staleTime: 120000, // 2 minutes
   });
 }
@@ -133,7 +133,7 @@ export function useMyTasks() {
 export function useTechnicianLeaderboard(periodStart: string, limit = 5) {
   return useQuery({
     queryKey: ["technicians", "leaderboard", periodStart, limit],
-    queryFn: () => techniciansApi.leaderboard(periodStart, limit),
+    queryFn: () => techniciansApi.getLeaderboard({ period_start: periodStart, limit }),
     staleTime: 120000,
   });
 }
@@ -141,7 +141,7 @@ export function useTechnicianLeaderboard(periodStart: string, limit = 5) {
 export function useFinanceSnapshot() {
   return useQuery<FinanceSnapshot>({
     queryKey: ["finance", "snapshot"],
-    queryFn: () => financeApi.snapshot() as Promise<FinanceSnapshot>,
+    queryFn: () => financeApi.getSnapshot() as Promise<FinanceSnapshot>,
     staleTime: 60000,
   });
 }
