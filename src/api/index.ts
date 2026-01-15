@@ -10,3 +10,7 @@ export * from "./hr";
 export * from "./system";
 export * from "./crm";
 export * from "./audit";
+export * from "./workflow";
+export * from "./scrapers";
+export * from "./technicians";
+export * from "./dashboards";

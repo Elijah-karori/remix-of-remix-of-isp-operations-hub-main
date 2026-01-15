@@ -15,13 +15,27 @@ export const inventoryApi = {
     createProduct: (data: any) =>
         apiFetch("/api/v1/inventory/products", { method: "POST", body: JSON.stringify(data) }),
 
-    listProducts: (params?: { skip?: number; limit?: number; category?: string; supplier_id?: number; low_stock?: boolean }) => {
+    listProducts: (params?: {
+        skip?: number;
+        limit?: number;
+        category?: string;
+        supplier_id?: number;
+        low_stock?: boolean;
+        is_empty_products?: boolean;
+        search?: string;
+        sort_by?: string;
+        order?: 'asc' | 'desc';
+    }) => {
         const searchParams = new URLSearchParams();
         if (params?.skip) searchParams.append("skip", String(params.skip));
         if (params?.limit) searchParams.append("limit", String(params.limit));
         if (params?.category) searchParams.append("category", params.category);
         if (params?.supplier_id) searchParams.append("supplier_id", String(params.supplier_id));
         if (params?.low_stock !== undefined) searchParams.append("low_stock", String(params.low_stock));
+        if (params?.is_empty_products !== undefined) searchParams.append("is_empty_products", String(params.is_empty_products));
+        if (params?.search) searchParams.append("search", params.search);
+        if (params?.sort_by) searchParams.append("sort_by", params.sort_by);
+        if (params?.order) searchParams.append("order", params.order);
         return apiFetch(`/api/v1/inventory/products?${searchParams}`);
     },
 
@@ -30,6 +44,22 @@ export const inventoryApi = {
 
     updateProduct: (productId: number, data: any) =>
         apiFetch(`/api/v1/inventory/products/${productId}`, { method: "PATCH", body: JSON.stringify(data) }),
+
+    syncProductFromClickup: (taskId: string) =>
+        apiFetch(`/api/v1/inventory/products/sync-clickup/${taskId}`, { method: "POST" }),
+
+    uploadProductImage: (productId: number, file: File) => {
+        const formData = new FormData();
+        formData.append("file", file);
+        return apiFetch(`/api/v1/inventory/products/${productId}/image`, {
+            method: "POST",
+            body: formData,
+            // Note: apiFetch usually assumes JSON, but for FormData we should let the browser set the boundary
+        });
+    },
+
+    getProductImage: (productId: number) =>
+        apiFetch(`/api/v1/inventory/products/${productId}/image`),
 
     searchProducts: (query: string, useScrapers = false, maxResults = 50) =>
         apiFetch(`/api/v1/products/search?q=${encodeURIComponent(query)}&use_scrapers=${useScrapers}&max_results=${maxResults}`),
@@ -41,25 +71,4 @@ export const inventoryApi = {
 
     getLowStock: (thresholdMultiplier = 1.5) =>
         apiFetch(`/api/v1/products/low-stock?threshold_multiplier=${thresholdMultiplier}`),
-};
-
-export const scrapersApi = {
-    triggerScraper: (supplierId: number) =>
-        apiFetch(`/api/v1/scrapers/suppliers/${supplierId}/scrape`, { method: "POST" }),
-
-    scrapeGenericUrl: (url: string, supplier_id?: number) =>
-        apiFetch("/api/v1/scrapers/scrape-generic", { method: "POST", body: JSON.stringify({ url, supplier_id }) }),
-
-    scrapeAllSuppliers: () =>
-        apiFetch("/api/v1/scrapers/scrape-all", { method: "POST" }),
-
-    getPriceHistory: (productId: number, limit = 100) =>
-        apiFetch(`/api/v1/scrapers/price-history/${productId}?limit=${limit}`),
-
-    getRecentPriceDrops: (days = 7, minDropPercent = 5.0) => {
-        const searchParams = new URLSearchParams();
-        searchParams.append("days", String(days));
-        searchParams.append("min_drop_percent", String(minDropPercent));
-        return apiFetch(`/api/v1/scrapers/price-drops?${searchParams}`);
-    },
 };
