@@ -10,6 +10,14 @@ import Projects from "./pages/Projects";
 import Tasks from "./pages/Tasks";
 import Finance from "./pages/Finance";
 import Inventory from "./pages/Inventory";
+import HR from "./pages/HR";
+import Technicians from "./pages/Technicians";
+import CRM from "./pages/CRM";
+import Workflows from "./pages/Workflows";
+import Permissions from "./pages/Permissions";
+import Analytics from "./pages/Analytics";
+import Audit from "./pages/Audit";
+import Settings from "./pages/Settings";
 import Login from "./pages/Login";
 import NotFound from "./pages/NotFound";
 
@@ -61,6 +69,70 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <Inventory />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/hr"
+              element={
+                <ProtectedRoute>
+                  <HR />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/technicians"
+              element={
+                <ProtectedRoute>
+                  <Technicians />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/crm"
+              element={
+                <ProtectedRoute>
+                  <CRM />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/workflows"
+              element={
+                <ProtectedRoute>
+                  <Workflows />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/permissions"
+              element={
+                <ProtectedRoute>
+                  <Permissions />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/analytics"
+              element={
+                <ProtectedRoute>
+                  <Analytics />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/audit"
+              element={
+                <ProtectedRoute>
+                  <Audit />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/settings"
+              element={
+                <ProtectedRoute>
+                  <Settings />
                 </ProtectedRoute>
               }
             />
